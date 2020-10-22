@@ -38,8 +38,9 @@ def trim(im):
     diff = ImageChops.difference(im, bg)
     diff = ImageChops.add(diff, diff, 2.0, -100)
     bbox = diff.getbbox()
+    print(bbox)
     if bbox:
-        return im.crop(bbox)
+        return im.crop((846,138,1005,837))
 #
 #
 #
@@ -62,7 +63,7 @@ def trim(im):
 # plt.savefig('handDiagram.pdf', dpi=600)
 #
 #
-def meshVisSave(mesh, path, col, x_rotation=0, y_rotation=0):
+def meshVisSave(mesh, path, col, cameraName):
     '''
     This function saves a mesh visualisation as png
 
@@ -82,10 +83,9 @@ def meshVisSave(mesh, path, col, x_rotation=0, y_rotation=0):
     vis = o3d.visualization.Visualizer()
     vis.create_window()
     ctr = vis.get_view_control()
-    vis.add_geometry(mesh) # , reset_bounding_box=False?
-    # ctr.set_lookat(lookat = [0.04352001454441809, 0.21342596571740188, -0.010379344423086655])
-    # ctr.set_zoom(zoom=0.7)
-    ctr.rotate(x_rotation, y_rotation)
+    vis.add_geometry(mesh)
+    parameters = o3d.io.read_pinhole_camera_parameters(cameraName+"CameraSettings.json")
+    ctr.convert_from_pinhole_camera_parameters(parameters)
     vis.update_geometry(mesh)
     vis.poll_events()
     vis.capture_screen_image(path + ".png")
@@ -93,33 +93,38 @@ def meshVisSave(mesh, path, col, x_rotation=0, y_rotation=0):
 
 meshes = loadMeshes("meshes/femurs/",ply_Bool=False)
 
-plt.figure()
+# plt.figure()
 # for i in range(0,50):
-    # meshVisSave(meshes[i], "faust" + str(i), [180, 180, 180], x_rotation=-400,y_rotation=-800)  # Saves the correct ones
-    # j = i+((i-1)*10)-1 # This gives the correct sequence I need
-meshVisSave(meshes[34],"femur"+str(34), [180, 180, 180],x_rotation=-400, y_rotation=-800) # Saves the correct ones
-plt.subplot(1, 3, 3)
+#     meshVisSave(meshes[i], "femur" + str(i), [180, 180, 180],cameraName="femur")  # Saves the correct ones
+#     img = Image.open("femur"+str(i)+".png")
+#     img = trim(img)
+#
+#     # (846,138,1005,837)
+meshVisSave(meshes[49],"femur"+str(49), [180, 180, 180],cameraName="femur") # Saves the correct ones
+plt.subplot(1, 3, 1)
+img = Image.open("femur49.png")
+img = trim(img)
+plt.imshow(img)
+plt.axis('off')
+
+
+# change this one
+
+
+meshVisSave(meshes[34],"femur"+str(34), [180, 180, 180],cameraName="femur") # Saves the correct ones
+plt.subplot(1, 3, 2)
 img = Image.open("femur34.png")
 img = trim(img)
 plt.imshow(img)
 plt.axis('off')
 
-meshVisSave(meshes[48],"femur"+str(48), [180, 180, 180],x_rotation=-400, y_rotation=-800) # Saves the correct ones
-plt.subplot(1, 3, 2)
-img = Image.open("femur48.png")
+meshVisSave(meshes[45],"femur"+str(45), [180, 180, 180],cameraName="femur") # Saves the correct ones
+plt.subplot(1, 3, 3)
+img = Image.open("femur45.png")
 img = trim(img)
 plt.imshow(img)
 plt.axis('off')
-
-meshVisSave(meshes[7],"femur"+str(7), [180, 180, 180],x_rotation=-400, y_rotation=-800) # Saves the correct ones
-plt.subplot(1, 3, 1)
-img = Image.open("femur7.png")
-img = trim(img)
-plt.imshow(img)
-plt.axis('off')
-# 48,49, 43,42 (34 DEFS twisty), skinny 7 long thingy and fat 28 43 48
-
-plt.tight_layout(pad =2)
+plt.tight_layout(h_pad=0,w_pad=1)
 plt.savefig('femurDiagram.pdf', dpi=600)
 
 

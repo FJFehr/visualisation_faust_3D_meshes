@@ -38,8 +38,9 @@ def trim(im):
     diff = ImageChops.difference(im, bg)
     diff = ImageChops.add(diff, diff, 2.0, -100)
     bbox = diff.getbbox()
+    print(bbox)
     if bbox:
-        return im.crop(bbox)
+        return im.crop((749,21,1098,801)) #left, upper, right, and lower pixel coordinate.
 #
 #
 #
@@ -62,7 +63,7 @@ def trim(im):
 # plt.savefig('handDiagram.pdf', dpi=600)
 #
 #
-def meshVisSave(mesh, path, col, x_rotation=0, y_rotation=0):
+def meshVisSave(mesh, path, col, cameraName):
     '''
     This function saves a mesh visualisation as png
 
@@ -83,9 +84,8 @@ def meshVisSave(mesh, path, col, x_rotation=0, y_rotation=0):
     vis.create_window()
     ctr = vis.get_view_control()
     vis.add_geometry(mesh)
-    # ctr.set_lookat(lookat = [0.04352001454441809, 0.21342596571740188, -0.010379344423086655])
-    # ctr.set_zoom(zoom=0.7)
-    ctr.rotate(x_rotation, y_rotation)
+    parameters = o3d.io.read_pinhole_camera_parameters(cameraName+"CameraSettings.json")
+    ctr.convert_from_pinhole_camera_parameters(parameters)
     vis.update_geometry(mesh)
     vis.poll_events()
     vis.capture_screen_image(path + ".png")
@@ -93,20 +93,36 @@ def meshVisSave(mesh, path, col, x_rotation=0, y_rotation=0):
 
 meshes = loadMeshes("meshes/")
 plt.figure()
+label = ['a','b','c','d','e','f','g','h','i','j']
 for i in range(1,11):
     j = i+((i-1)*10)-1 # This gives the correct sequence I need
-    meshVisSave(meshes[j],"faust"+str(j), [180, 180, 180]) # Saves the correct ones
+    meshVisSave(meshes[j],"faust"+str(j), [180, 180, 180],cameraName="faust") # Saves the correct ones
 
     plt.subplot(2, 5, i)
     img = Image.open("faust"+str(j)+".png")
     img = trim(img)
     plt.imshow(img)
     plt.axis('off')
-    #plt.title("Person "+str(i)+ "\nPosition "+str(i))
+    # plt.ylim(700, 0)
+    # plt.title(str(i)+label[i-1])
+    plt.title(f'${str(i)}{label[i-1]}$', fontsize = 8,y=-0.1)
 
-plt.tight_layout(pad =4)
+
+plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 plt.savefig('faustDiagram.pdf', dpi=300)
 
+# meshes = loadMeshes("meshes/")
+# plt.figure()
+# for i in range(1,50):
+#     meshVisSave(meshes[i],"faust"+str(i), [180, 180, 180],cameraName="faust") # Saves the correct ones
+#     img = Image.open("faust"+str(i)+".png")
+#     img = trim(img)
+#     plt.imshow(img)
+#     plt.axis('off')
+#     # plt.ylim(700, 0)
+
+# (min,min,max,max)
+# bbox = (749,50,1092,801)  left, upper, right, and lower pixel coordinate.
 
 
 
